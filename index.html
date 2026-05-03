@@ -1,0 +1,1113 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Yapıcılar Oto | Dijital Müşteri Takip Sistemi</title>
+
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: Arial, sans-serif;
+      user-select: none;
+      -webkit-user-select: none;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: #fff;
+      color: #111;
+      overflow-x: hidden;
+    }
+
+    img {
+      pointer-events: none;
+      user-select: none;
+      -webkit-user-drag: none;
+    }
+
+    .menu-overlay {
+      position: fixed;
+      inset: 0;
+      background: linear-gradient(
+        90deg,
+        rgba(0,0,0,.78) 0%,
+        rgba(0,0,0,.62) 35%,
+        rgba(0,0,0,.32) 65%,
+        rgba(0,0,0,0) 100%
+      );
+      backdrop-filter: blur(6px);
+      opacity: 0;
+      pointer-events: none;
+      z-index: 998;
+      transition: .35s ease;
+    }
+
+    .menu-overlay.active {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .page {
+      background: #fff;
+      transition: transform .35s ease;
+    }
+
+    .page.active {
+      transform: translateX(-300px);
+    }
+
+    header {
+      width: 100%;
+      padding: 14px 7%;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: rgba(255,255,255,.96);
+      backdrop-filter: blur(14px);
+      border-bottom: 1px solid #eee;
+      position: fixed;
+      top: 0;
+      left: 0;
+      z-index: 999;
+    }
+
+    .logo-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .logo-img {
+      width: 42px;
+      height: 42px;
+      border-radius: 10px;
+      object-fit: cover;
+      background: #111;
+    }
+
+    .logo-wrap {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .logo {
+      font-size: 25px;
+      font-weight: 900;
+      letter-spacing: -1px;
+      color: #111;
+      line-height: 1;
+    }
+
+    .logo span {
+      color: #c5161d;
+      font-size: 21px;
+      margin-left: 2px;
+    }
+
+    .logo-sub {
+      font-size: 10px;
+      font-weight: 800;
+      color: #777;
+      letter-spacing: .3px;
+    }
+
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .header-login {
+      padding: 13px 16px;
+      background: #c5161d;
+      color: #fff;
+      border-radius: 14px;
+      text-decoration: none;
+      font-weight: 900;
+      font-size: 14px;
+      box-shadow: 0 12px 28px rgba(197,22,29,.24);
+      white-space: nowrap;
+    }
+
+    .menu-btn {
+      width: 48px;
+      height: 48px;
+      border-radius: 15px;
+      border: none;
+      background: #111;
+      color: #fff;
+      font-size: 25px;
+      cursor: pointer;
+      box-shadow: 0 12px 30px rgba(0,0,0,.22);
+    }
+
+    .side-menu {
+      position: fixed;
+      top: 0;
+      right: -300px;
+      width: 300px;
+      height: 100vh;
+      background: #111;
+      color: #fff;
+      z-index: 1000;
+      transition: right .35s ease;
+      overflow-y: auto;
+    }
+
+    .side-menu.active {
+      right: 0;
+    }
+
+    .close-menu-btn {
+      width: 100%;
+      height: 54px;
+      background: #c5161d;
+      color: #fff;
+      border: none;
+      font-size: 17px;
+      font-weight: 900;
+      cursor: pointer;
+      letter-spacing: .3px;
+    }
+
+    .menu-logo {
+      width: 100%;
+      height: 285px;
+      object-fit: contain;
+      display: block;
+      background: #000;
+      border-bottom: 1px solid rgba(255,255,255,.1);
+      padding: 10px;
+    }
+
+    .menu-links {
+      padding: 16px 18px 8px;
+    }
+
+    .side-menu a {
+      display: block;
+      color: #fff;
+      text-decoration: none;
+      padding: 17px 0;
+      border-bottom: 1px solid rgba(255,255,255,.12);
+      font-weight: 900;
+      font-size: 17px;
+    }
+
+    .side-menu a:hover {
+      color: #c5161d;
+    }
+
+    .gallery-link {
+      display: block;
+      color: #fff;
+      text-decoration: none;
+      border-bottom: none !important;
+      padding: 0 !important;
+    }
+
+    .gallery-link:hover .menu-gallery-title {
+      color: #c5161d;
+    }
+
+    .menu-gallery {
+      padding: 18px;
+    }
+
+    .menu-gallery-title {
+      font-size: 14px;
+      color: #aaa;
+      font-weight: 900;
+      margin-bottom: 12px;
+      text-transform: uppercase;
+      letter-spacing: .8px;
+      transition: .25s;
+    }
+
+    .menu-gallery-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    .menu-gallery-grid img {
+      width: 100%;
+      height: 82px;
+      object-fit: cover;
+      border-radius: 14px;
+      border: 1px solid rgba(255,255,255,.12);
+      background: #222;
+    }
+
+    .menu-note {
+      margin: 18px;
+      padding: 16px;
+      border-radius: 18px;
+      background: rgba(197,22,29,.14);
+      border: 1px solid rgba(197,22,29,.35);
+      color: #ddd;
+      font-size: 13px;
+      line-height: 1.7;
+    }
+
+    .hero {
+      min-height: 100vh;
+      padding: 135px 7% 65px;
+      display: grid;
+      grid-template-columns: 1.05fr .95fr;
+      gap: 50px;
+      align-items: center;
+      background:
+        linear-gradient(90deg, rgba(255,255,255,.98), rgba(255,255,255,.84)),
+        url("https://images.unsplash.com/photo-1632823471565-1ecdf5c23922?q=80&w=1600&auto=format&fit=crop");
+      background-size: cover;
+      background-position: center;
+    }
+
+    .hero-shop-img {
+      width: 100%;
+      max-width: 720px;
+      height: 260px;
+      object-fit: cover;
+      border-radius: 28px;
+      margin-bottom: 28px;
+      box-shadow: 0 25px 70px rgba(0,0,0,.15);
+    }
+
+    h1 {
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: clamp(42px, 6vw, 78px);
+      line-height: 1.03;
+      letter-spacing: -3px;
+      margin-bottom: 24px;
+      color: #111;
+    }
+
+    h1 span {
+      color: #c5161d;
+    }
+
+    .hero p {
+      font-size: 18px;
+      line-height: 1.85;
+      color: #3d3d3d;
+      max-width: 690px;
+      margin-bottom: 28px;
+    }
+
+    .mini-info {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 14px;
+      max-width: 720px;
+      margin-top: 28px;
+    }
+
+    .mini-box {
+      background: #fff;
+      border: 1px solid #eee;
+      border-radius: 20px;
+      padding: 18px;
+      box-shadow: 0 14px 40px rgba(0,0,0,.06);
+    }
+
+    .mini-box b {
+      display: block;
+      color: #c5161d;
+      font-size: 25px;
+      margin-bottom: 7px;
+    }
+
+    .mini-box span {
+      color: #555;
+      font-size: 14px;
+      line-height: 1.5;
+      display: block;
+    }
+
+    .hero-gallery {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+
+    .hero-img {
+      min-height: 230px;
+      border-radius: 28px;
+      overflow: hidden;
+      box-shadow: 0 25px 70px rgba(0,0,0,.18);
+      position: relative;
+      background: #eee;
+    }
+
+    .hero-img.big {
+      grid-column: span 2;
+      min-height: 270px;
+    }
+
+    .hero-img img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+      filter: contrast(1.05);
+    }
+
+    .img-label {
+      position: absolute;
+      left: 18px;
+      bottom: 18px;
+      background: rgba(17,17,17,.86);
+      color: #fff;
+      padding: 10px 14px;
+      border-radius: 999px;
+      font-size: 13px;
+      font-weight: 900;
+    }
+
+    section {
+      padding: 80px 7%;
+    }
+
+    .section-head {
+      display: flex;
+      justify-content: space-between;
+      gap: 30px;
+      align-items: flex-end;
+      margin-bottom: 38px;
+    }
+
+    .section-title {
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: clamp(34px, 4vw, 54px);
+      letter-spacing: -2px;
+      line-height: 1.05;
+    }
+
+    .section-title span {
+      color: #c5161d;
+    }
+
+    .section-desc {
+      color: #555;
+      line-height: 1.8;
+      max-width: 680px;
+      font-size: 16px;
+    }
+
+    .black-section {
+      background: #111;
+      color: #fff;
+    }
+
+    .black-section .section-desc {
+      color: #ccc;
+    }
+
+    .services {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 22px;
+    }
+
+    .service {
+      background: #fff;
+      border: 1px solid #eee;
+      border-radius: 28px;
+      overflow: hidden;
+      box-shadow: 0 18px 55px rgba(0,0,0,.07);
+    }
+
+    .service img {
+      width: 100%;
+      height: 190px;
+      object-fit: cover;
+      display: block;
+    }
+
+    .service-content {
+      padding: 25px;
+    }
+
+    .service h3 {
+      margin-bottom: 12px;
+      color: #c5161d;
+      font-size: 22px;
+    }
+
+    .service p {
+      color: #555;
+      line-height: 1.75;
+      font-size: 15px;
+    }
+
+    .system-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 24px;
+      align-items: stretch;
+    }
+
+    .system-card {
+      background: #1b1b1b;
+      border: 1px solid rgba(255,255,255,.08);
+      border-radius: 28px;
+      padding: 30px;
+    }
+
+    .system-card h3 {
+      color: #fff;
+      font-size: 25px;
+      margin-bottom: 14px;
+    }
+
+    .system-card p {
+      color: #ccc;
+      line-height: 1.85;
+    }
+
+    .step-list {
+      display: grid;
+      gap: 15px;
+      margin-top: 22px;
+    }
+
+    .step {
+      background: rgba(255,255,255,.06);
+      padding: 18px;
+      border-radius: 18px;
+      border-left: 5px solid #c5161d;
+    }
+
+    .step strong {
+      display: block;
+      color: #fff;
+      margin-bottom: 7px;
+    }
+
+    .system-image {
+      border-radius: 28px;
+      overflow: hidden;
+      min-height: 100%;
+    }
+
+    .system-image img {
+      width: 100%;
+      height: 100%;
+      min-height: 480px;
+      object-fit: cover;
+      display: block;
+    }
+
+    .features {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 18px;
+    }
+
+    .feature {
+      background: #f6f6f6;
+      border-radius: 24px;
+      padding: 24px;
+      border: 1px solid #eee;
+    }
+
+    .feature b {
+      color: #c5161d;
+      font-size: 26px;
+      display: block;
+      margin-bottom: 12px;
+    }
+
+    .feature h3 {
+      margin-bottom: 10px;
+    }
+
+    .feature p {
+      color: #555;
+      line-height: 1.7;
+      font-size: 14px;
+    }
+
+    .split {
+      display: grid;
+      grid-template-columns: .9fr 1.1fr;
+      gap: 35px;
+      align-items: center;
+    }
+
+    .split img {
+      width: 100%;
+      border-radius: 30px;
+      box-shadow: 0 20px 60px rgba(0,0,0,.13);
+      display: block;
+    }
+
+    .info-box {
+      background: #fff;
+      border-radius: 30px;
+      padding: 34px;
+      box-shadow: 0 20px 60px rgba(0,0,0,.08);
+      border: 1px solid #eee;
+    }
+
+    .info-box h2 {
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: 42px;
+      letter-spacing: -2px;
+      margin-bottom: 18px;
+    }
+
+    .info-box p {
+      color: #555;
+      line-height: 1.9;
+      margin-bottom: 16px;
+    }
+
+    .cta-line {
+      margin-top: 20px;
+      background: #111;
+      color: #fff;
+      border-radius: 22px;
+      padding: 24px;
+      border-left: 6px solid #c5161d;
+      line-height: 1.8;
+    }
+
+    .faq-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 18px;
+    }
+
+    .faq {
+      background: #fff;
+      color: #111;
+      border-radius: 24px;
+      padding: 25px;
+    }
+
+    .faq h3 {
+      color: #c5161d;
+      margin-bottom: 10px;
+    }
+
+    .faq p {
+      color: #555;
+      line-height: 1.75;
+    }
+
+    .map-card {
+      background: #fff;
+      border-radius: 30px;
+      padding: 25px;
+      box-shadow: 0 22px 70px rgba(0,0,0,.13);
+      border: 1px solid #eee;
+    }
+
+    iframe {
+      width: 100%;
+      height: 390px;
+      border: 0;
+      border-radius: 22px;
+      display: block;
+    }
+
+    .map-btn {
+      display: block;
+      margin-top: 18px;
+      text-align: center;
+      padding: 17px;
+      background: #c5161d;
+      color: #fff;
+      border-radius: 16px;
+      text-decoration: none;
+      font-weight: 900;
+    }
+
+    footer {
+      padding: 38px 7%;
+      background: #c5161d;
+      color: #fff;
+      text-align: center;
+      font-size: 15px;
+    }
+
+    footer strong {
+      color: #fff;
+      font-weight: 900;
+    }
+
+    @media (max-width: 950px) {
+      .page.active {
+        transform: translateX(-300px);
+      }
+
+      header {
+        padding: 13px 5%;
+      }
+
+      .logo-img {
+        width: 38px;
+        height: 38px;
+      }
+
+      .logo {
+        font-size: 22px;
+      }
+
+      .logo span {
+        font-size: 18px;
+      }
+
+      .logo-sub {
+        font-size: 9px;
+      }
+
+      .header-login {
+        padding: 12px 13px;
+        font-size: 12px;
+        border-radius: 13px;
+      }
+
+      .menu-btn {
+        width: 46px;
+        height: 46px;
+      }
+
+      .hero,
+      .system-grid,
+      .split {
+        grid-template-columns: 1fr;
+      }
+
+      .hero {
+        padding: 125px 5% 50px;
+      }
+
+      .hero-shop-img {
+        height: 220px;
+        border-radius: 22px;
+      }
+
+      h1 {
+        letter-spacing: -2px;
+      }
+
+      section {
+        padding: 60px 5%;
+      }
+
+      .section-head {
+        display: block;
+      }
+
+      .section-desc {
+        margin-top: 16px;
+      }
+
+      .services,
+      .features,
+      .faq-grid,
+      .mini-info {
+        grid-template-columns: 1fr;
+      }
+
+      .hero-gallery {
+        grid-template-columns: 1fr;
+      }
+
+      .hero-img.big {
+        grid-column: span 1;
+      }
+
+      .system-image img {
+        min-height: 320px;
+      }
+
+      iframe {
+        height: 330px;
+      }
+    }
+
+    @media (max-width: 430px) {
+      .side-menu {
+        width: 285px;
+        right: -285px;
+      }
+
+      .page.active {
+        transform: translateX(-285px);
+      }
+
+      .menu-logo {
+        height: 275px;
+      }
+
+      .menu-gallery-grid img {
+        height: 76px;
+      }
+    }
+  </style>
+</head>
+
+<body oncontextmenu="return false">
+
+  <div class="menu-overlay" id="menuOverlay" onclick="closeMenu()"></div>
+
+  <div class="side-menu" id="sideMenu">
+    <button class="close-menu-btn" onclick="closeMenu()">Menüyü Kapat</button>
+
+    <img class="menu-logo" src="https://pbs.twimg.com/media/HHYUZffboAA_Hlo?format=jpg&name=large" alt="Yapıcılar Oto Logo">
+
+    <div class="menu-links">
+      <a href="#anasayfa" onclick="closeMenu()">Ana Sayfa</a>
+      <a href="hakkimizda.html" onclick="closeMenu()">Hakkımızda</a>
+      <a href="admin.html" onclick="closeMenu()">Admin Panel</a>
+      <a href="register.html" onclick="closeMenu()">Kayıt Ol</a>
+      <a href="#sss" onclick="closeMenu()">SSS</a>
+    </div>
+
+    <a class="gallery-link" href="galeri.html">
+      <div class="menu-gallery">
+        <div class="menu-gallery-title">Görsel Galeri</div>
+
+        <div class="menu-gallery-grid">
+          <img src="https://pbs.twimg.com/media/HHYUq2Cb0AATs4m?format=jpg&name=large" alt="Yapıcılar Oto">
+          <img src="https://pbs.twimg.com/media/HHYUq2Cb0AATs4m?format=jpg&name=large" alt="Servis">
+          <img src="https://images.unsplash.com/photo-1619642751034-765dfdf7c58e?q=80&w=700&auto=format&fit=crop" alt="Bakım">
+          <img src="https://images.unsplash.com/photo-1486262715619-67b85e0b08d3?q=80&w=700&auto=format&fit=crop" alt="Sanayi">
+        </div>
+      </div>
+    </a>
+
+    <div class="menu-note">
+      Yapıcılar Oto dijital müşteri takip sistemiyle araç bakım, onarım ve servis süreçleri daha düzenli şekilde takip edilir.
+    </div>
+  </div>
+
+  <div class="page" id="page">
+    <header>
+      <div class="logo-row">
+        <img class="logo-img" src="https://pbs.twimg.com/media/HHYUZffboAA_Hlo?format=jpg&name=large" alt="Yapıcılar Oto Logo">
+
+        <div class="logo-wrap">
+          <div class="logo">Yapıcılar<span>Oto</span></div>
+          <div class="logo-sub">Dijital müşteri takip sistemi</div>
+        </div>
+      </div>
+
+      <div class="header-actions">
+        <a class="header-login" href="login.html">Müşteri Girişi</a>
+        <button class="menu-btn" onclick="openMenu()">☰</button>
+      </div>
+    </header>
+
+    <main class="hero" id="anasayfa">
+      <div>
+        <img class="hero-shop-img" src="https://pbs.twimg.com/media/HHYUq2Cb0AATs4m?format=jpg&name=large" alt="Yapıcılar Oto Dükkan Görseli">
+
+        <h1>Sanayi hizmeti artık <span>daha düzenli.</span></h1>
+
+        <p>
+          Yapıcılar Oto, araç bakım ve onarım süreçlerini yalnızca sözlü bilgiyle değil,
+          dijital kayıt sistemiyle müşteriye sunar. Müşteri kendi hesabına giriş yaparak
+          aracına yapılan işlemleri, değişen parçaları, servis notlarını, ödeme durumunu
+          ve araç teslim sürecini tek ekrandan takip edebilir.
+        </p>
+
+        <p>
+          Bu yapı sayesinde hem işletme tarafında düzenli bir servis arşivi oluşur
+          hem de müşteri aracının hangi aşamada olduğunu net şekilde görebilir.
+        </p>
+
+        <div class="mini-info">
+          <div class="mini-box">
+            <b>01</b>
+            <span>Araç ve müşteri bilgileri düzenli kayıt altında tutulur.</span>
+          </div>
+
+          <div class="mini-box">
+            <b>02</b>
+            <span>Yapılan bakım, onarım ve değişen parçalar listelenir.</span>
+          </div>
+
+          <div class="mini-box">
+            <b>03</b>
+            <span>Müşteri kendi panelinden sadece kendi aracını görür.</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="hero-gallery">
+        <div class="hero-img big">
+          <img src="https://images.unsplash.com/photo-1632823471565-1ecdf5c23922?q=80&w=1200&auto=format&fit=crop" alt="Oto servis">
+          <div class="img-label">Profesyonel Servis Alanı</div>
+        </div>
+
+        <div class="hero-img">
+          <img src="https://images.unsplash.com/photo-1619642751034-765dfdf7c58e?q=80&w=900&auto=format&fit=crop" alt="Araç bakım">
+          <div class="img-label">Bakım</div>
+        </div>
+
+        <div class="hero-img">
+          <img src="https://images.unsplash.com/photo-1606577924006-27d39b132ae2?q=80&w=900&auto=format&fit=crop" alt="Usta çalışması">
+          <div class="img-label">Onarım</div>
+        </div>
+      </div>
+    </main>
+
+    <section>
+      <div class="section-head">
+        <h2 class="section-title">Oto servis hizmetleri<span>.</span></h2>
+        <p class="section-desc">
+          Yapıcılar Oto’da yapılan işlemler müşteri ve araç bazlı kayıt altına alınır.
+          Böylece hem işletme tarafında düzenli takip sağlanır hem de müşteri kendi
+          aracının geçmişini net şekilde görebilir.
+        </p>
+      </div>
+
+      <div class="services">
+        <div class="service">
+          <img src="https://images.unsplash.com/photo-1607860108855-64acf2078ed9?q=80&w=900&auto=format&fit=crop" alt="">
+          <div class="service-content">
+            <h3>Periyodik Bakım</h3>
+            <p>Yağ, filtre, sıvı kontrolleri ve genel bakım işlemleri düzenli şekilde sisteme eklenir.</p>
+          </div>
+        </div>
+
+        <div class="service">
+          <img src="https://images.unsplash.com/photo-1613214149922-f1809c99b414?q=80&w=900&auto=format&fit=crop" alt="">
+          <div class="service-content">
+            <h3>Arıza Tespit</h3>
+            <p>Motor, elektrik ve mekanik sorunlar kontrol edilerek müşterinin paneline işlem notu olarak işlenir.</p>
+          </div>
+        </div>
+
+        <div class="service">
+          <img src="https://images.unsplash.com/photo-1621905252507-b35492cc74b4?q=80&w=900&auto=format&fit=crop" alt="">
+          <div class="service-content">
+            <h3>Parça Değişimi</h3>
+            <p>Değişen parçalar, fiyat bilgileri ve işlem açıklamaları kayıt altında tutulur.</p>
+          </div>
+        </div>
+
+        <div class="service">
+          <img src="https://images.unsplash.com/photo-1588286840104-8957b019727f?q=80&w=900&auto=format&fit=crop" alt="">
+          <div class="service-content">
+            <h3>Fren ve Güvenlik</h3>
+            <p>Fren sistemi, lastik, yürüyen aksam ve güvenlik kontrolleri servis geçmişine eklenir.</p>
+          </div>
+        </div>
+
+        <div class="service">
+          <img src="https://images.unsplash.com/photo-1503376780353-7e6692767b70?q=80&w=900&auto=format&fit=crop" alt="">
+          <div class="service-content">
+            <h3>Araç Durumu</h3>
+            <p>Beklemede, işlemde, hazır, teslim edildi gibi durumlar müşteri tarafından görülebilir.</p>
+          </div>
+        </div>
+
+        <div class="service">
+          <img src="https://images.unsplash.com/photo-1492144534655-ae79c964c9d7?q=80&w=900&auto=format&fit=crop" alt="">
+          <div class="service-content">
+            <h3>Servis Geçmişi</h3>
+            <p>Müşteri, önceki bakım ve onarım kayıtlarını panel üzerinden tekrar inceleyebilir.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="black-section">
+      <div class="section-head">
+        <h2 class="section-title">Dijital servis paneli<span>.</span></h2>
+        <p class="section-desc">
+          Bu sistem, klasik oto sanayi düzenini daha profesyonel hale getirir.
+          İşletme tüm kayıtları panelden yönetir, müşteri ise sadece kendi aracına
+          ait bilgileri güvenli şekilde görüntüler.
+        </p>
+      </div>
+
+      <div class="system-grid">
+        <div class="system-card">
+          <h3>Yönetim panelinde neler olacak?</h3>
+          <p>
+            İşletme tarafı müşteri ekleyebilir, araç kaydı oluşturabilir, yapılan
+            işlemleri yazabilir, fiyat ve ödeme durumunu belirleyebilir.
+          </p>
+
+          <div class="step-list">
+            <div class="step">
+              <strong>01 — Müşteri ve araç kaydı</strong>
+              Plaka, marka, model, müşteri adı ve iletişim bilgileri girilir.
+            </div>
+
+            <div class="step">
+              <strong>02 — İşlem ve fiyat girişi</strong>
+              Yapılan işlem, değişen parça, işçilik ve toplam ücret kaydedilir.
+            </div>
+
+            <div class="step">
+              <strong>03 — Durum takibi</strong>
+              Araç beklemede, işlemde, hazır veya teslim edildi olarak işaretlenir.
+            </div>
+          </div>
+        </div>
+
+        <div class="system-image">
+          <img src="https://images.unsplash.com/photo-1486262715619-67b85e0b08d3?q=80&w=1200&auto=format&fit=crop" alt="Oto sanayi">
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <div class="section-head">
+        <h2 class="section-title">Müşteri panelinde görülecekler<span>.</span></h2>
+        <p class="section-desc">
+          Müşteri kendi kullanıcı adı ve şifresiyle giriş yaptığında sadece kendi
+          aracına ait kayıtları görür.
+        </p>
+      </div>
+
+      <div class="features">
+        <div class="feature">
+          <b>01</b>
+          <h3>Araç Bilgisi</h3>
+          <p>Plaka, marka, model ve müşteriye ait araç bilgileri gösterilir.</p>
+        </div>
+
+        <div class="feature">
+          <b>02</b>
+          <h3>Yapılan İşlemler</h3>
+          <p>Bakım, onarım, parça değişimi ve servis açıklamaları listelenir.</p>
+        </div>
+
+        <div class="feature">
+          <b>03</b>
+          <h3>Ödeme Durumu</h3>
+          <p>Toplam fiyat, ödenen ücret ve kalan ödeme bilgisi görüntülenir.</p>
+        </div>
+
+        <div class="feature">
+          <b>04</b>
+          <h3>Araç Süreci</h3>
+          <p>Aracın işlemde, hazır veya teslim edildi durumu takip edilir.</p>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <div class="split">
+        <img src="https://images.unsplash.com/photo-1589820296156-2454bb8a6ad1?q=80&w=1200&auto=format&fit=crop" alt="Sanayi çalışma alanı">
+
+        <div class="info-box">
+          <h2>Sanayiye uygun modern sistem.</h2>
+          <p>
+            Yapıcılar Oto sitesi yalnızca tanıtım amacı taşımaz. Aynı zamanda
+            müşteri girişli bir servis takip sistemine dönüşecek şekilde hazırlanır.
+          </p>
+          <p>
+            Bu yapı sayesinde işletme araç süreçlerini daha düzenli yönetir,
+            müşteri ise telefonla sürekli bilgi almak zorunda kalmadan kendi panelinden
+            güncel durumu takip eder.
+          </p>
+
+          <div class="cta-line">
+            Yapıcılar Oto için hazırlanan bu yapı; web site, müşteri girişi,
+            admin panel, servis geçmişi ve araç işlem takibi mantığıyla ilerleyecektir.
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="black-section" id="sss">
+      <div class="section-head">
+        <h2 class="section-title">Sık sorulan sorular<span>.</span></h2>
+        <p class="section-desc">
+          Yapıcılar Oto dijital servis sistemiyle ilgili temel bilgiler.
+        </p>
+      </div>
+
+      <div class="faq-grid">
+        <div class="faq">
+          <h3>Müşteri sisteme nasıl girer?</h3>
+          <p>Müşteri, Yapıcılar Oto tarafından oluşturulan kullanıcı adı ve şifreyle giriş yapar.</p>
+        </div>
+
+        <div class="faq">
+          <h3>Her müşteri her aracı görür mü?</h3>
+          <p>Hayır. Her müşteri sadece kendisine ait araç ve işlem kayıtlarını görüntüler.</p>
+        </div>
+
+        <div class="faq">
+          <h3>İşletme panelden ne yapar?</h3>
+          <p>Müşteri, araç, işlem, fiyat, ödeme durumu ve teslim sürecini yönetir.</p>
+        </div>
+
+        <div class="faq">
+          <h3>Bu sistem ne işe yarar?</h3>
+          <p>Servis sürecini kayıtlı, şeffaf, düzenli ve daha profesyonel hale getirir.</p>
+        </div>
+      </div>
+    </section>
+
+
+    <section id="konum">
+      <div class="section-head">
+        <h2 class="section-title">Harita konumu<span>.</span></h2>
+        <p class="section-desc">
+          Yapıcılar Oto konumuna aşağıdaki harita veya Google Haritalar bağlantısı
+          üzerinden ulaşabilirsiniz.
+        </p>
+      </div>
+
+      <div class="map-card">
+        <iframe
+          src="https://www.google.com/maps?q=Yenidoğan,%20Demirsoy%20Sk.%20No:12,%2026060%20Odunpazarı%20Eskişehir&output=embed"
+          loading="lazy"
+          referrerpolicy="no-referrer-when-downgrade">
+        </iframe>
+
+        <a class="map-btn" target="_blank"
+          href="https://www.google.com/maps/search/?api=1&query=Yenidoğan,%20Demirsoy%20Sk.%20No:12,%2026060%20Odunpazarı%20Eskişehir">
+          Google Haritalar’da Aç
+        </a>
+      </div>
+    </section>
+
+    <footer>
+      <strong>Kaan Ayaz Web Developer</strong> tarafından hazırlanmıştır
+    </footer>
+  </div>
+
+  <script>
+    const sideMenu = document.getElementById("sideMenu");
+    const page = document.getElementById("page");
+    const menuOverlay = document.getElementById("menuOverlay");
+
+    function openMenu() {
+      sideMenu.classList.add("active");
+      page.classList.add("active");
+      menuOverlay.classList.add("active");
+    }
+
+    function closeMenu() {
+      sideMenu.classList.remove("active");
+      page.classList.remove("active");
+      menuOverlay.classList.remove("active");
+    }
+
+    document.addEventListener("copy", e => e.preventDefault());
+    document.addEventListener("cut", e => e.preventDefault());
+    document.addEventListener("selectstart", e => e.preventDefault());
+    document.addEventListener("contextmenu", e => e.preventDefault());
+  </script>
+
+</body>
+</html>
